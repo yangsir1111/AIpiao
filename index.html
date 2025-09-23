@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>票小助 - 智能发票识别与贴票助手</title>
+    <meta name="description" content="告别手工贴票，报销效率提升90%。AI精准识别发票信息，自动生成专业贴票单和Excel报表。">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #07C160;
+            --primary-dark: #059048;
+            --secondary-color: #1AAD19;
+            --accent-color: #FA9D3B;
+            --text-primary: #2c3e50;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #07C160 0%, #1AAD19 100%);
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .cta-button {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Mobile menu */
+        .mobile-menu-button {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary-color);
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        .btn-secondary {
+            color: white;
+            padding: 16px 32px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .hero-mockup {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            width: 280px;
+            height: 560px;
+            background: #1f2937;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            transform: rotate(-5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .phone-mockup:hover {
+            transform: rotate(0deg);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-gradient);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-alt {
+            background: var(--bg-secondary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Pain Points Section */
+        .pain-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .pain-card {
+            background: white;
+            padding: 40px 32px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .pain-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pain-icon {
+            font-size: 3rem;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .pain-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .pain-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Solution Timeline */
+        .solution-timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            position: relative;
+        }
+
+        .timeline-step {
+            text-align: center;
+            padding: 32px 24px;
+            position: relative;
+        }
+
+        .timeline-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-step h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .timeline-step p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Scenarios Tabs */
+        .scenarios-tabs {
+            margin-bottom: 48px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 40px;
+        }
+
+        .tab-button {
+            background: white;
+            border: 2px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .tab-button.active {
+            background: var(--bg-gradient);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Testimonials */
+        .testimonials-slider {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .testimonial-card.active {
+            display: block;
+        }
+
+        .testimonial-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .testimonial-role {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .rating {
+            color: #fbbf24;
+            font-size: 1.2rem;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background: var(--primary-color);
+        }
+
+        /* Pricing */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-gradient);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 24px 0;
+        }
+
+        .price-period {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 32px 0;
+            text-align: left;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* FAQ */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 24px;
+            background: none;
+            border: none;
+            text-align: left;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        .faq-question:hover {
+            background: var(--bg-secondary);
+        }
+
+        .faq-answer {
+            padding: 0 24px 24px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: none;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* CTA Section */
+        .final-cta {
+            background: var(--bg-gradient);
+            color: white;
+            text-align: center;
+        }
+
+        .final-cta h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .final-cta .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .cta-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .cta-feature {
+            text-align: center;
+        }
+
+        .cta-feature h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 16px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 64px 0 32px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section a {
+            color: #d1d5db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid #374151;
+            color: #9ca3af;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .phone-mockup {
+                width: 240px;
+                height: 480px;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .final-cta h2 {
+                font-size: 2rem;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pricing-card.popular {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 48px 0;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Loading animations */
+        .loading {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .loading.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                📋 票小助
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#features">核心功能</a></li>
+                <li><a href="#scenarios">使用场景</a></li>
+                <li><a href="#pricing">价格</a></li>
+                <li><a href="#help">帮助中心</a></li>
+            </ul>
+            <a href="#cta" class="cta-button">立即体验</a>
+            <button class="mobile-menu-button">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>告别手工贴票<br>报销效率提升90%</h1>
+                <p class="subtitle">拍一拍发票，自动识别信息、生成专业贴票单和Excel报表</p>
+                <div class="hero-features">
+                    <span class="feature-tag">✅ AI精准识别</span>
+                    <span class="feature-tag">✅ 1分钟完成贴票</span>
+                    <span class="feature-tag">✅ 数据安全加密</span>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#cta" class="btn-primary">免费体验</a>
+                    <a href="#solution" class="btn-secondary">观看演示视频 →</a>
+                </div>
+            </div>
+            <div class="hero-mockup">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        票小助<br>小程序界面
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pain Points Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>您是否也在为这些报销烦恼？</h2>
+            </div>
+            <div class="pain-points">
+                <div class="pain-card loading">
+                    <span class="pain-icon">📝</span>
+                    <h3>手工录入易出错</h3>
+                    <p>手动输入发票号码金额，眼花缭乱还容易出错，报销单频繁被退回</p>
+                </div>
+                <div class="pain-card loading">
+                    <span class="pain-icon">⏰</span>
+                    <h3>贴票排版耗时间</h3>
+                    <p>剪刀胶水手工贴票，半小时才能贴好一张A4纸，效率低下</p>
+                </div>
+                <div class="pain-card loading">
+                    <span class="pain-icon">📂</span>
+                    <h3>票据管理混乱</h3>
+                    <p>各种发票堆积如山，查找统计困难，月底报销像打仗</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section id="solution" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>票小助如何帮您解决这些问题？</h2>
+            </div>
+            <div class="solution-timeline">
+                <div class="timeline-step loading">
+                    <div class="timeline-icon">📷</div>
+                    <h3>一键拍照或上传</h3>
+                    <p>打开微信扫一扫或直接拍照，支持相册导入多种格式</p>
+                </div>
+                <div class="timeline-step loading">
+                    <div class="timeline-icon">🤖</div>
+                    <h3>精准提取关键信息</h3>
+                    <p>深度学习算法自动识别发票代码、金额、日期等20+字段</p>
+                </div>
+                <div class="timeline-step loading">
+                    <div class="timeline-icon">📄</div>
+                    <h3>专业贴票单自动生成</h3>
+                    <p>符合财务规范的A4贴票单，整齐美观，直接打印</p>
+                </div>
+                <div class="timeline-step loading">
+                    <div class="timeline-icon">📊</div>
+                    <h3>Excel报表一键导出</h3>
+                    <p>自动汇总所有发票信息，方便统计和存档</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>为什么选择票小助？</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card loading">
+                    <div class="feature-header">
+                        <div class="feature-icon">🎫</div>
+                        <h3>多票种全面支持</h3>
+                    </div>
+                    <p>增值税专用发票、普通发票、出租车票、行程单等常见票据全面支持</p>
+                </div>
+                <div class="feature-card loading">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔧</div>
+                        <h3>智能纠错与提醒</h3>
+                    </div>
+                    <p>AI智能检测异常数据，自动纠错并提醒用户，确保数据准确性</p>
+                </div>
+                <div class="feature-card loading">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔒</div>
+                        <h3>数据安全加密</h3>
+                    </div>
+                    <p>本地化处理，不上传敏感数据，银行级加密保障商业隐私</p>
+                </div>
+                <div class="feature-card loading">
+                    <div class="feature-header">
+                        <div class="feature-icon">🎨</div>
+                        <h3>多模板支持</h3>
+                    </div>
+                    <p>提供丰富的模板支持，满足不同用户的个性化需求</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scenarios Section -->
+    <section id="scenarios" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>票小助在这些场景中特别有用</h2>
+            </div>
+            <div class="scenarios-tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="business">商务出差</button>
+                    <button class="tab-button" data-tab="finance">企业财务</button>
+                    <button class="tab-button" data-tab="freelancer">自由职业</button>
+                    <button class="tab-button" data-tab="startup">小微企业</button>
+                </div>
+                <div class="tab-content active" id="business">
+                    <h3>商务出差</h3>
+                    <p>差旅发票一键整理，结束报销补单烦恼。无论是机票、酒店还是餐饮发票，拍照即可自动识别整理，让您的差旅报销变得轻松愉快。</p>
+                </div>
+                <div class="tab-content" id="finance">
+                    <h3>企业财务</h3>
+                    <p>批量处理员工报销，大幅减轻财务工作量。支持多人同时使用，自动汇总统计，财务审核效率提升10倍，告别加班熬夜处理报销单。</p>
+                </div>
+                <div class="tab-content" id="freelancer">
+                    <h3>自由职业</h3>
+                    <p>项目费用清晰记录，税务申报更轻松。每个项目的成本费用一目了然，自动生成专业报表，让您专注于创作和业务发展。</p>
+                </div>
+                <div class="tab-content" id="startup">
+                    <h3>小微企业</h3>
+                    <p>零成本实现专业发票管理，规范财务流程。无需专业财务人员，创始人也能轻松管理公司发票，为企业发展打好基础。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>已经帮助5000+用户高效处理发票</h2>
+            </div>
+            <div class="testimonials-slider">
+                <div class="testimonial-card active">
+                    <p class="testimonial-content">"使用票小助后，我们财务部处理报销的时间减少了70%，员工满意度大幅提升"</p>
+                    <p class="testimonial-author">李财务总监</p>
+                    <p class="testimonial-role">某科技公司财务总监</p>
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-content">"再也不用晚上回家贴发票了，拍个照就自动生成贴票单，太方便了！"</p>
+                    <p class="testimonial-author">王销售经理</p>
+                    <p class="testimonial-role">经常出差的销售经理</p>
+                    <div class="rating">★★★★★</div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-content">"对于我们这种小团队，票小助相当于请了半个财务专员，性价比极高"</p>
+                    <p class="testimonial-author">张创始人</p>
+                    <p class="testimonial-role">创业公司创始人</p>
+                    <div class="rating">★★★★☆</div>
+                </div>
+                <div class="slider-dots">
+                    <span class="slider-dot active" data-slide="0"></span>
+                    <span class="slider-dot" data-slide="1"></span>
+                    <span class="slider-dot" data-slide="2"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>选择适合您的方案</h2>
+                <p>推广阶段全部功能免费使用</p>
+            </div>
+            <div class="pricing-cards">
+                <div class="pricing-card loading">
+                    <h3>免费版</h3>
+                    <div class="price">￥0<span class="price-period">/月</span></div>
+                    <ul class="features-list">
+                        <li>每月10次识别</li>
+                        <li>基础贴票模板</li>
+                        <li>社区支持</li>
+                        <li>微信小程序使用</li>
+                    </ul>
+                    <a href="#cta" class="btn-primary" style="width: 100%; text-align: center; display: block;">立即开始</a>
+                </div>
+                <div class="pricing-card popular loading">
+                    <div class="popular-badge">最受欢迎</div>
+                    <h3>专业版</h3>
+                    <div class="price">￥29<span class="price-period">/月</span></div>
+                    <p style="color: var(--text-light); margin-bottom: 16px;">或 ￥299/年（节省15%）</p>
+                    <ul class="features-list">
+                        <li>无限次识别</li>
+                        <li>高级模板</li>
+                        <li>Excel导出</li>
+                        <li>优先支持</li>
+                        <li>批量处理</li>
+                    </ul>
+                    <a href="#cta" class="btn-primary" style="width: 100%; text-align: center; display: block;">立即购买</a>
+                </div>
+                <div class="pricing-card loading">
+                    <h3>企业版</h3>
+                    <div class="price">联系<span class="price-period">定制</span></div>
+                    <ul class="features-list">
+                        <li>专业模板定制</li>
+                        <li>团队协作功能</li>
+                        <li>API接口支持</li>
+                        <li>专属客服</li>
+                        <li>私有化部署</li>
+                    </ul>
+                    <a href="#cta" class="btn-primary" style="width: 100%; text-align: center; display: block;">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>常见问题解答</h2>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        数据安全吗？发票图片会上传到服务器吗？
+                        <span class="faq-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        数据保存在手机缓存，绝对保护用户的隐私安全。我们采用本地化处理技术，所有发票信息都在您的设备上处理，不会上传到任何服务器。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        支持哪些类型的发票？
+                        <span class="faq-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        用OCR技术识别，可以识别市面上几乎所有类型的发票或者票据，包括增值税专用发票、普通发票、出租车票、火车票、机票行程单等。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        识别准确率如何？
+                        <span class="faq-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        经过大量测试，我们的识别准确率达到98%以上。对于识别不准确的情况，您可以手动修正，系统会持续学习优化。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        如何导出Excel和PDF？
+                        <span class="faq-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        生成后在小程序里面，点击右上角三个点转发到微信，或者通过邮件发送。专业版用户还支持直接下载到手机相册。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        能否定制符合我们公司要求的贴票模板？
+                        <span class="faq-icon">▼</span>
+                    </button>
+                    <div class="faq-answer">
+                        可以的，对于有个性化要求的模板，我们提供专业的定制服务。企业版用户可享受专属模板设计和技术支持。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section id="cta" class="section final-cta">
+        <div class="container">
+            <h2>立即体验智能发票管理</h2>
+            <p class="subtitle">加入10,000+高效办公的聪明用户</p>
+            <div class="cta-features">
+                <div class="cta-feature">
+                    <h3>✓ 新用户赠送50次免费识别</h3>
+                </div>
+                <div class="cta-feature">
+                    <h3>✓ 无需下载，微信扫码即用</h3>
+                </div>
+                <div class="cta-feature">
+                    <h3>✓ 3分钟上手，立即提升效率</h3>
+                </div>
+                <div class="cta-feature">
+                    <h3>✓ 保护用户隐私，数据缓存在用户手机上</h3>
+                </div>
+            </div>
+            <div class="qr-code">
+                微信扫码<br>立即体验
+            </div>
+            <a href="#" class="btn-primary" style="font-size: 1.2rem; padding: 20px 40px;">免费开始使用</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="help" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>产品</h3>
+                    <ul>
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#features">功能特点</a></li>
+                        <li><a href="#pricing">定价方案</a></li>
+                        <li><a href="#scenarios">使用场景</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>支持</h3>
+                    <ul>
+                        <li><a href="#">帮助中心</a></li>
+                        <li><a href="#">使用教程</a></li>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">技术支持</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>法律</h3>
+                    <ul>
+                        <li><a href="#">用户协议</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        <li><a href="#">服务条款</a></li>
+                        <li><a href="#">免责声明</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li><a href="#">客服微信</a></li>
+                        <li><a href="#">商务合作</a></li>
+                        <li><a href="#">反馈建议</a></li>
+                        <li><a href="#">加入我们</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 票小助 版权所有 | 让发票管理变得简单高效</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('loaded');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.loading').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Scenarios tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Testimonials slider
+        let currentTestimonial = 0;
+        const testimonials = document.querySelectorAll('.testimonial-card');
+        const dots = document.querySelectorAll('.slider-dot');
+
+        function showTestimonial(index) {
+            testimonials.forEach(card => card.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            testimonials[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentTestimonial = index;
+                showTestimonial(currentTestimonial);
+            });
+        });
+
+        // Auto-rotate testimonials
+        setInterval(() => {
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            showTestimonial(currentTestimonial);
+        }, 5000);
+
+        // FAQ accordion
+        const faqQuestions = document.querySelectorAll('.faq-question');
+
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.parentElement;
+                const answer = question.nextElementSibling;
+                
+                // Close all other FAQ items
+                faqQuestions.forEach(otherQuestion => {
+                    if (otherQuestion !== question) {
+                        otherQuestion.parentElement.classList.remove('active');
+                        otherQuestion.nextElementSibling.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current FAQ item
+                faqItem.classList.toggle('active');
+                answer.classList.toggle('active');
+            });
+        });
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const navLinks = document.querySelector('.nav-links');
+
+        mobileMenuButton.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Hero phone mockup hover effect
+        const phoneMockup = document.querySelector('.phone-mockup');
+        if (phoneMockup) {
+            phoneMockup.addEventListener('mouseenter', () => {
+                phoneMockup.style.transform = 'rotate(0deg) scale(1.05)';
+            });
+            
+            phoneMockup.addEventListener('mouseleave', () => {
+                phoneMockup.style.transform = 'rotate(-5deg) scale(1)';
+            });
+        }
+
+        // Add loading animation delays
+        setTimeout(() => {
+            document.querySelectorAll('.loading').forEach((el, index) => {
+                el.style.transitionDelay = `${index * 0.1}s`;
+            });
+        }, 100);
+
+        // Pricing card hover effects
+        const pricingCards = document.querySelectorAll('.pricing-card');
+        pricingCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (!card.classList.contains('popular')) {
+                    card.style.borderColor = 'var(--primary-color)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                if (!card.classList.contains('popular')) {
+                    card.style.borderColor = 'var(--border-color)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
