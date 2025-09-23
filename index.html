@@ -13,17 +13,17 @@
         }
 
         :root {
-            --primary-color: #07C160;
-            --primary-dark: #059048;
-            --secondary-color: #1AAD19;
+            --primary-color: #00C56C; /* WeChat brand green */
+            --primary-dark: #00A85F;  /* darker shade for hover */
+            --secondary-color: #00C56C;
             --accent-color: #FA9D3B;
-            --text-primary: #2c3e50;
-            --text-secondary: #64748b;
+            --text-primary: #222222;  /* deep gray */
+            --text-secondary: #4B5563; /* balanced secondary text */
             --text-light: #94a3b8;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-gradient: linear-gradient(135deg, #07C160 0%, #1AAD19 100%);
-            --border-color: #e2e8f0;
+            --bg-primary: #ffffff;    /* high white */
+            --bg-secondary: #f7f9fb;
+            --bg-gradient: #00C56C;   /* avoid gradients: use flat brand green */
+            --border-color: #e5e7eb;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -69,6 +69,11 @@
             font-weight: 700;
             font-size: 1.25rem;
             color: var(--primary-color);
+        }
+
+        .logo img {
+            height: 116px;
+            display: block;
         }
 
         .nav-links {
@@ -227,6 +232,7 @@
             height: 100%;
             background: var(--bg-gradient);
             border-radius: 24px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -676,17 +682,17 @@
         }
 
         .qr-code {
-            width: 200px;
-            height: 200px;
-            background: white;
-            border-radius: 16px;
+            width: 100%;
+            max-width: 640px;
             margin: 0 auto 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            font-weight: 600;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
         }
 
         /* Footer */
@@ -828,6 +834,62 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Video Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 2000;
+        }
+
+        .modal.open {
+            display: block;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(90%, 960px);
+            max-height: 85vh;
+            background: #000;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .modal-content video {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 85vh;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.85);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 32px;
+            text-align: center;
+            color: #111827;
+        }
     </style>
 </head>
 <body>
@@ -835,7 +897,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                📋 票小助
+                <img src="/src/assets/icons/210210.png" alt="票小助 Logo" />
             </div>
             <ul class="nav-links">
                 <li><a href="#home">首页</a></li>
@@ -862,13 +924,13 @@
                 </div>
                 <div class="hero-buttons">
                     <a href="#cta" class="btn-primary">免费体验</a>
-                    <a href="#solution" class="btn-secondary">观看演示视频 →</a>
+                    <a href="#" id="open-demo-video" class="btn-secondary">观看演示视频 →</a>
                 </div>
             </div>
             <div class="hero-mockup">
                 <div class="phone-mockup">
                     <div class="phone-screen">
-                        票小助<br>小程序界面
+                        <img src="/src/assets/images/common/bg-pic.png" alt="小程序界面预览" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px;" />
                     </div>
                 </div>
             </div>
@@ -909,22 +971,48 @@
             </div>
             <div class="solution-timeline">
                 <div class="timeline-step loading">
-                    <div class="timeline-icon">📷</div>
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
+                            <rect x="3" y="7" width="18" height="12" rx="2" stroke="#ffffff" fill="none" stroke-width="2"/>
+                            <circle cx="12" cy="13" r="4" stroke="#ffffff" fill="none" stroke-width="2"/>
+                            <path d="M7 7l2-3h6l2 3" stroke="#ffffff" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                     <h3>一键拍照或上传</h3>
                     <p>打开微信扫一扫或直接拍照，支持相册导入多种格式</p>
                 </div>
                 <div class="timeline-step loading">
-                    <div class="timeline-icon">🤖</div>
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
+                            <path d="M8 3v2M16 3v2" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                            <rect x="5" y="6" width="14" height="10" rx="3" stroke="#ffffff" fill="none" stroke-width="2"/>
+                            <circle cx="9" cy="11" r="1" fill="#ffffff"/>
+                            <circle cx="15" cy="11" r="1" fill="#ffffff"/>
+                            <path d="M9 14h6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h3>精准提取关键信息</h3>
                     <p>深度学习算法自动识别发票代码、金额、日期等20+字段</p>
                 </div>
                 <div class="timeline-step loading">
-                    <div class="timeline-icon">📄</div>
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
+                            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9z" stroke="#ffffff" fill="none" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M14 3v6h6" stroke="#ffffff" fill="none" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                     <h3>专业贴票单自动生成</h3>
                     <p>符合财务规范的A4贴票单，整齐美观，直接打印</p>
                 </div>
                 <div class="timeline-step loading">
-                    <div class="timeline-icon">📊</div>
+                    <div class="timeline-icon">
+                        <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true">
+                            <path d="M4 20h16" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M7 20v-6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 20v-10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M17 20v-4" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
                     <h3>Excel报表一键导出</h3>
                     <p>自动汇总所有发票信息，方便统计和存档</p>
                 </div>
@@ -945,13 +1033,6 @@
                         <h3>多票种全面支持</h3>
                     </div>
                     <p>增值税专用发票、普通发票、出租车票、行程单等常见票据全面支持</p>
-                </div>
-                <div class="feature-card loading">
-                    <div class="feature-header">
-                        <div class="feature-icon">🔧</div>
-                        <h3>智能纠错与提醒</h3>
-                    </div>
-                    <p>AI智能检测异常数据，自动纠错并提醒用户，确保数据准确性</p>
                 </div>
                 <div class="feature-card loading">
                     <div class="feature-header">
@@ -1163,11 +1244,22 @@
                 </div>
             </div>
             <div class="qr-code">
-                微信扫码<br>立即体验
+                <img src="/src/assets/images/common/扫码_搜索联合传播样式-微信标准绿版.png" alt="微信搜一搜 票小助" />
             </div>
-            <a href="#" class="btn-primary" style="font-size: 1.2rem; padding: 20px 40px;">免费开始使用</a>
+            <a href="#" class="btn-primary" style="font-size: 1.2rem; padding: 20px 40px;">微信扫码免费使用</a>
         </div>
     </section>
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="关闭">×</button>
+            <video id="demo-video" controls preload="metadata" playsinline>
+                <source src="/videos/video.mp4" type="video/mp4" />
+            </video>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer id="help" class="footer">
@@ -1372,6 +1464,46 @@
                     card.style.borderColor = 'var(--border-color)';
                 }
             });
+        });
+
+        // Demo video modal
+        const openVideoBtn = document.getElementById('open-demo-video');
+        const videoModal = document.getElementById('video-modal');
+        const modalOverlay = videoModal ? videoModal.querySelector('.modal-overlay') : null;
+        const modalClose = videoModal ? videoModal.querySelector('.modal-close') : null;
+        const demoVideo = document.getElementById('demo-video');
+
+        function openModal() {
+            if (!videoModal) return;
+            videoModal.classList.add('open');
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
+            if (demoVideo && typeof (demoVideo).play === 'function') {
+                demoVideo.play();
+            }
+        }
+
+        function closeModal() {
+            if (!videoModal) return;
+            videoModal.classList.remove('open');
+            // Restore body scroll
+            document.body.style.overflow = '';
+            if (demoVideo && typeof (demoVideo).pause === 'function') {
+                demoVideo.pause();
+            }
+        }
+
+        if (openVideoBtn) {
+            openVideoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openModal();
+            });
+        }
+
+        if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+        if (modalClose) modalClose.addEventListener('click', closeModal);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
         });
     </script>
 </body>
